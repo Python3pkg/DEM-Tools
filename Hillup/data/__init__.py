@@ -6,7 +6,7 @@ from itertools import product
 from tempfile import mkstemp
 from sys import modules
 
-import NED10m, NED100m, NED1km, SRTM1, SRTM3, VFP, Worldwide
+from . import NED10m, NED100m, NED1km, SRTM1, SRTM3, VFP, Worldwide
 
 from ModestMaps.Core import Coordinate
 from TileStache.Geography import SphericalMercator
@@ -299,7 +299,7 @@ def calculate_slope_aspect(elevation, xres, yres, z=1.0):
     
     window = [z * elevation[row:(row + height), col:(col + width)]
               for (row, col)
-              in product(range(3), range(3))]
+              in product(list(range(3)), list(range(3)))]
     
     x = ((window[0] + window[3] + window[3] + window[6]) \
        - (window[2] + window[5] + window[5] + window[8])) \

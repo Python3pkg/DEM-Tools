@@ -55,8 +55,8 @@ from sys import stderr
 from math import floor, log
 from os import unlink, close, write, chmod, makedirs
 from os.path import basename, exists, isdir, join
-from httplib import HTTPConnection
-from urlparse import urlparse
+from http.client import HTTPConnection
+from urllib.parse import urlparse
 from tempfile import mkstemp
 from zipfile import ZipFile
 from hashlib import md5
@@ -199,14 +199,14 @@ def datasource(lat, lon, source_dir):
 
     if not exists(dem_dir):
         makedirs(dem_dir)
-        chmod(dem_dir, 0777)
+        chmod(dem_dir, 0o777)
     
     assert isdir(dem_dir)
     
     #
     # Grab a fresh remote copy
     #
-    print >> stderr, 'Retrieving', url, 'in DEM.SRTM3.datasource().'
+    print('Retrieving', url, 'in DEM.SRTM3.datasource().', file=stderr)
     
     conn = HTTPConnection(host, 80)
     conn.request('GET', path)
@@ -214,7 +214,7 @@ def datasource(lat, lon, source_dir):
     
     if resp.status == 404:
         # we're probably outside the coverage area
-        print >> open(dem_none, 'w'), url
+        print(url, file=open(dem_none, 'w'))
         return None
     
     assert resp.status == 200, (resp.status, resp.read())
@@ -236,7 +236,7 @@ def datasource(lat, lon, source_dir):
         dem_file.write(zipfile.read(zipfile.namelist()[0]))
         dem_file.close()
         
-        chmod(dem_path, 0666)
+        chmod(dem_path, 0o666)
     
     finally:
         unlink(zip_path)

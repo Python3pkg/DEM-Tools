@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
         # read out zooms, columns, rows
         zxys = [line.strip().split('/') for line in open(options.tile_list)]
-        coords = [Coordinate(*map(int, (y, x, z))) for (z, x, y) in zxys]
+        coords = [Coordinate(*list(map(int, (y, x, z)))) for (z, x, y) in zxys]
         tiles = [(i, len(coords), coord) for (i, coord) in enumerate(coords)]
     
     else:
@@ -117,4 +117,4 @@ if __name__ == '__main__':
         
         mimetype, content = getTile(layer, coord, 'TIFF', True)
 
-        print coord
+        print(coord)

@@ -4,9 +4,9 @@ from sys import stderr
 from math import floor, ceil, log
 from os import unlink, close, write, makedirs, chmod
 from os.path import basename, exists, isdir, join
-from httplib import HTTPConnection
-from urlparse import urlparse
-from StringIO import StringIO
+from http.client import HTTPConnection
+from urllib.parse import urlparse
+from io import StringIO
 from gzip import GzipFile
 from hashlib import md5
 
@@ -68,14 +68,14 @@ def datasource(lat, lon, source_dir):
 
     if not exists(local_dir):
         makedirs(local_dir)
-        chmod(local_dir, 0777)
+        chmod(local_dir, 0o777)
     
     assert isdir(local_dir)
     
     #
     # Grab a fresh remote copy
     #
-    print >> stderr, 'Retrieving', url, 'in DEM.NED100m.datasource().'
+    print('Retrieving', url, 'in DEM.NED100m.datasource().', file=stderr)
     
     conn = HTTPConnection(host, 80)
     conn.request('GET', path)
@@ -83,7 +83,7 @@ def datasource(lat, lon, source_dir):
     
     if resp.status in range(400, 500):
         # we're probably outside the coverage area
-        print >> open(local_none, 'w'), url
+        print(url, file=open(local_none, 'w'))
         return None
     
     assert resp.status == 200, (resp.status, resp.read())

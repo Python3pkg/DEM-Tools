@@ -5,9 +5,9 @@ from math import floor, ceil, log
 from os import unlink, close, write, makedirs, chmod
 from os.path import basename, exists, isdir, join
 from tempfile import mkstemp, mkdtemp
-from httplib import HTTPConnection
+from http.client import HTTPConnection
 from shutil import move, rmtree
-from urlparse import urlparse
+from urllib.parse import urlparse
 from zipfile import ZipFile
 from fnmatch import fnmatch
 from hashlib import md5
@@ -74,14 +74,14 @@ def datasource(lat, lon, source_dir):
 
     if not exists(local_dir):
         makedirs(local_dir)
-        chmod(local_dir, 0777)
+        chmod(local_dir, 0o777)
     
     assert isdir(local_dir)
     
     #
     # Grab a fresh remote copy
     #
-    print >> stderr, 'Retrieving', url, 'in DEM.NED10m.datasource().'
+    print('Retrieving', url, 'in DEM.NED10m.datasource().', file=stderr)
     
     conn = HTTPConnection(host, 80)
     conn.request('GET', path)
@@ -89,7 +89,7 @@ def datasource(lat, lon, source_dir):
     
     if resp.status == 404:
         # we're probably outside the coverage area
-        print >> open(local_none, 'w'), url
+        print(url, file=open(local_none, 'w'))
         return None
     
     assert resp.status == 200, (resp.status, resp.read())
@@ -124,8 +124,8 @@ def datasource(lat, lon, source_dir):
             if local_file.endswith('.hdr'):
                 # GDAL needs some extra hints to understand the raw float data
                 hdr_file = open(local_file, 'a')
-                print >> hdr_file, 'nbits 32'
-                print >> hdr_file, 'pixeltype float'
+                print('nbits 32', file=hdr_file)
+                print('pixeltype float', file=hdr_file)
         
         #
         # The file better exist locally now

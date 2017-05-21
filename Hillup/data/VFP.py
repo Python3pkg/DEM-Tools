@@ -1,8 +1,8 @@
 from sys import stderr
-from urlparse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin
 from os import unlink, close, write, chmod, makedirs
 from os.path import basename, exists, isdir, join
-from httplib import HTTPConnection
+from http.client import HTTPConnection
 from tempfile import mkstemp
 from zipfile import ZipFile
 from hashlib import md5
@@ -39,14 +39,14 @@ def datasource(lat, lon, source_dir):
 
     if not exists(dem_dir):
         makedirs(dem_dir)
-        chmod(dem_dir, 0777)
+        chmod(dem_dir, 0o777)
     
     assert isdir(dem_dir)
     
     #
     # Grab a fresh remote copy
     #
-    print >> stderr, 'Retrieving', url, 'in VFP.vfp_datasource().'
+    print('Retrieving', url, 'in VFP.vfp_datasource().', file=stderr)
     
     conn = HTTPConnection(host, 80)
     conn.request('GET', path)
@@ -54,10 +54,10 @@ def datasource(lat, lon, source_dir):
     
     if resp.status == 404:
         # we're probably outside the coverage area, use SRTM3 instead
-        print >> open(dem_none, 'w'), url
+        print(url, file=open(dem_none, 'w'))
         return None
     
-    print >> stderr, 'Found', resp.getheader('location'), 'X-Zip-Path:', resp.getheader('x-zip-path')
+    print('Found', resp.getheader('location'), 'X-Zip-Path:', resp.getheader('x-zip-path'), file=stderr)
 
     assert resp.status in range(300, 399), (resp.status, resp.read())
     
@@ -67,7 +67,7 @@ def datasource(lat, lon, source_dir):
     #
     # Get the real zip archive
     #
-    print >> stderr, 'Getting', zip_location
+    print('Getting', zip_location, file=stderr)
 
     s, host, path, p, q, f = urlparse(zip_location)
 
@@ -90,13 +90,13 @@ def datasource(lat, lon, source_dir):
         #
         # Write the actual DEM
         #
-        print >> stderr, 'Extracting', zip_filepath, 'to', dem_path
+        print('Extracting', zip_filepath, 'to', dem_path, file=stderr)
     
         dem_file = open(dem_path, 'w')
         dem_file.write(zipfile.read(zip_filepath))
         dem_file.close()
         
-        chmod(dem_path, 0666)
+        chmod(dem_path, 0o666)
     
     finally:
         unlink(zip_path)

@@ -1,9 +1,9 @@
 from math import pi, log
 from tempfile import mkstemp
 from os import close, write, remove
-from urlparse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse
 from os.path import join, exists
-from urllib import urlopen
+from urllib.request import urlopen
 
 from TileStache.Geography import SphericalMercator
 
@@ -94,7 +94,7 @@ def render_tile(source_dir, coord, min_zoom):
             ul = original.zoomTo(coord.zoom).left(coord.column).up(coord.row)
             lr = original.down().right().zoomTo(coord.zoom).left(coord.column).up(coord.row)
             
-            left, top, right, bottom = map(int, (ul.column * w, ul.row * h, lr.column * w, lr.row * h))
+            left, top, right, bottom = list(map(int, (ul.column * w, ul.row * h, lr.column * w, lr.row * h)))
             
             shaded = shaded[top:bottom, left:right]
         
